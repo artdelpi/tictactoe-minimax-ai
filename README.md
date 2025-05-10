@@ -2,7 +2,7 @@
 This repository contains implementations of the Tic-Tac-Toe game in multiple programming languages.
 
 ## Demo (Java Implementation)  
-![Tic-Tac-Toe Demo](tictactoe-java\assets\demo.gif)
+![Tic-Tac-Toe Demo](tictactoe-java/assets/demo.gif)
 
 ## Implementations  
 - **Java** (done)  
