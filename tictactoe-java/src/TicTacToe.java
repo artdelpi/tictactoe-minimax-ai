@@ -61,8 +61,11 @@ public class TicTacToe {
                             turn++;
 
                             // Condição de parada
-                            if (hasWinner() || turn > 9) {
+                            if (hasWinner()) {
                                 isOver = true;
+                            } else if (turn > 9) {
+                                isOver = true;
+                                handleDraw();
                             }
                         }
                     }
@@ -151,4 +154,15 @@ public class TicTacToe {
             
             return false;
         }
+
+    void handleDraw() {
+        for (int i=0; i<3; i++) {
+            for (int j=0; j<3; j++) {
+                buttons[i][j].setBackground(Color.BLACK);
+                buttons[i][j].setForeground(Color.GRAY);
+                label.setText("It's a draw!");
+            }
+        }
+    }
+
 }
