@@ -105,12 +105,13 @@ public class TicTacToe {
                                 } else if (turn == 9) {
                                     isOver = true;
                                     handleDraw();
+                                } else {
+                                    turn++;
+                                    // Alterna entre os jogadores X e O
+                                    currentPlayer = currentPlayer == "X" ? "O" : "X";
+                                    turnLabel.setText(currentPlayer + " to play!");
                                 }
                                 
-                                // Alterna entre os jogadores X e O
-                                currentPlayer = currentPlayer == "X" ? "O" : "X";
-                                turnLabel.setText(currentPlayer + " to play!");
-                                turn++;
                             }
 
                         }
