@@ -8,14 +8,18 @@ public class TicTacToe {
     // Declaration of GUI components
     private JFrame menuFrame;
     private JFrame gameFrame;
-    private JPanel menuFramePanel;
+    private JPanel menuTitlePanel;
     private JPanel gameFramePanel;
     private JPanel gameStatusPanel;
+    private JPanel menuButtonPanel;
+    private JButton menuAIButton;
+    private JButton menuPlayerButton;
     private JButton restartButton;
     private JButton[][] gameBoard = new JButton[3][3];
     private JLabel turnLabel;
     private JLabel xScoreLabel;
     private JLabel oScoreLabel;
+    private JLabel menuTitleLabel;
 
     // Initialization of game variables
     private String currentPlayer;
@@ -40,7 +44,6 @@ public class TicTacToe {
         gameFrame = new JFrame("Tic-Tac-Toe");
 
         // Initialize panels to hold GUI components
-        menuFramePanel = new JPanel();
         gameFramePanel = new JPanel();
         gameStatusPanel = new JPanel();
 
@@ -63,6 +66,7 @@ public class TicTacToe {
     }
 
     private void setUpUserInterface() {
+        /* Set up Game Board UI */
         gameFrame.setSize(800, 800);
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gameFrame.setLayout(new BorderLayout());
@@ -103,7 +107,67 @@ public class TicTacToe {
         formatLabel(xScoreLabel);
         gameFrame.add(gameStatusPanel, BorderLayout.NORTH);
         gameFrame.add(gameFramePanel, BorderLayout.CENTER);
-        gameFrame.setVisible(true);
+        gameFrame.setVisible(false);
+
+        /* Set up Menu UI */
+        menuFrame.setSize(600, 400);
+        menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        menuFrame.setLayout(new BorderLayout());
+        menuFrame.setResizable(false);
+        menuFrame.setLocationRelativeTo(null); // Center the window
+
+        // Panel Title Label
+        menuTitlePanel = new JPanel();
+        menuTitlePanel.setBackground(new Color(25, 25, 25));
+        menuTitleLabel = new JLabel(("TIC-TAC-TOE"));
+        menuTitleLabel.setForeground(Color.ORANGE);
+        menuTitleLabel.setFont(new Font("Arial Black", Font.BOLD, 60));
+        menuTitlePanel.add(menuTitleLabel);
+
+        menuButtonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        menuButtonPanel.setBackground(new Color(35, 35, 35));
+        menuButtonPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
+
+        menuAIButton = new JButton("Player vs AI");
+        menuAIButton.setFont(new Font("Arial", Font.BOLD, 28));
+        menuAIButton.setBackground(new Color(50, 50, 50));
+        menuAIButton.setForeground(Color.WHITE);
+        menuAIButton.setFocusPainted(false);
+        menuAIButton.setBorder(BorderFactory.createLineBorder(Color.ORANGE, 2));
+        menuAIButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        menuPlayerButton = new JButton("Player vs Player");
+        menuPlayerButton.setFont(new Font("Arial", Font.BOLD, 28));
+        menuPlayerButton.setBackground(new Color(50, 50, 50));
+        menuPlayerButton.setForeground(Color.WHITE);
+        menuPlayerButton.setFocusPainted(false);
+        menuPlayerButton.setBorder(BorderFactory.createLineBorder(Color.ORANGE, 2));
+        menuPlayerButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        menuPlayerButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuFrame.setVisible(false);
+                gameFrame.setVisible(true);
+                gameMode = gameModes[1]; // gameMode = "playerVsPlayer"
+            }
+        });
+
+        menuAIButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuFrame.setVisible(false);
+                gameFrame.setVisible(true);
+                gameMode = gameModes[0]; // gameMode = "computerVsPlayer"
+            }
+        });
+
+        menuTitlePanel.setBackground(new Color(25, 25, 25));
+
+        menuButtonPanel.add(menuAIButton);
+        menuButtonPanel.add(menuPlayerButton);
+
+        menuFrame.add(menuTitlePanel, BorderLayout.NORTH);
+        menuFrame.add(menuButtonPanel, BorderLayout.CENTER);
+        menuFrame.setVisible(true);
     }
 
     private void setUpTiles() {
