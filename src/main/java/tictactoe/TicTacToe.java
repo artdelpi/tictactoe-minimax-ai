@@ -11,10 +11,14 @@ public class TicTacToe {
     private JPanel menuTitlePanel;
     private JPanel gameFramePanel;
     private JPanel gameStatusPanel;
+    private JPanel gameStatusButtonsPanel;
+    private JPanel gameStatusLabelPanel;
+    private JPanel gameStatusLabelTurnPanel;
     private JPanel menuButtonPanel;
     private JButton menuAIButton;
     private JButton menuPlayerButton;
     private JButton restartButton;
+    private JButton returnButton;
     private JButton[][] gameBoard = new JButton[3][3];
     private JLabel turnLabel;
     private JLabel xScoreLabel;
@@ -46,16 +50,20 @@ public class TicTacToe {
         // Initialize panels to hold GUI components
         gameFramePanel = new JPanel();
         gameStatusPanel = new JPanel();
+        gameStatusButtonsPanel = new JPanel();
+        gameStatusLabelPanel = new JPanel();
+        gameStatusLabelTurnPanel = new JPanel();
 
         // Create GUI components
-        restartButton = new JButton(">> RESTART <<");
+        restartButton = new JButton("RESTART");
+        returnButton = new JButton("MENU");
         turnLabel = new JLabel(currentPlayer + " to play!");
-        xScoreLabel = new JLabel("X: 0");
-        oScoreLabel = new JLabel("O: 0");
+        xScoreLabel = new JLabel("✕: 0");
+        oScoreLabel = new JLabel("⭕: 0");
     }
 
     private void initializeGameVariables() {
-        currentPlayer = "X";
+        currentPlayer = "✕"; //U+2715
         xScore = 0;
         oScore = 0;
         turn = 1;
@@ -73,12 +81,16 @@ public class TicTacToe {
         gameFrame.setResizable(false);
         gameFrame.setLocationRelativeTo(null); // Center the window
         gameFramePanel.setLayout(new GridLayout(3, 3));
+        gameFramePanel.setBackground(Color.ORANGE);
         
         // Configure the restart button
-        restartButton.setBackground(Color.black);
-        restartButton.setForeground(Color.RED);
+        restartButton.setFont(new Font("Arial", Font.BOLD, 25));
+        restartButton.setBackground(new Color(50, 50, 50));
+        restartButton.setForeground(Color.WHITE);
         restartButton.setFocusable(false);
-        restartButton.setFont(new Font("ARIAL", Font.BOLD, 25));
+        restartButton.setBorder(BorderFactory.createLineBorder(Color.ORANGE, 1));
+        restartButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        restartButton.setPreferredSize(new Dimension(180, 40));
 
         // Restart game when the button is clicked
         restartButton.addActionListener(new ActionListener() {
@@ -86,7 +98,7 @@ public class TicTacToe {
                 for (int r=0; r<3; r++) {
                     for (int c=0; c<3; c++) {
                         gameBoard[r][c].setText("");
-                        gameBoard[r][c].setBackground(Color.DARK_GRAY);
+                        gameBoard[r][c].setBackground(Color.ORANGE);
                     }
                 }
                 turnLabel.setText(currentPlayer + " to play!");
@@ -95,18 +107,63 @@ public class TicTacToe {
             }
         });
         
-        gameStatusPanel.setLayout(new BorderLayout());
-        gameStatusPanel.setBackground(Color.GRAY);
-        gameStatusPanel.add(turnLabel, BorderLayout.CENTER);
-        gameStatusPanel.add(restartButton, BorderLayout.SOUTH);
-        gameStatusPanel.add(oScoreLabel, BorderLayout.WEST);
-        gameStatusPanel.add(xScoreLabel, BorderLayout.EAST);
+        returnButton.setFont(new Font("Arial", Font.BOLD, 25));
+        returnButton.setBackground(new Color(50, 50, 50));
+        returnButton.setForeground(Color.WHITE);
+        returnButton.setBorder(BorderFactory.createLineBorder(Color.ORANGE, 1));
+        returnButton.setFocusable(false);
+        returnButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        returnButton.setPreferredSize(new Dimension(180, 40));
+
+        returnButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                gameFrame.setVisible(false);
+                menuFrame.setVisible(true);
+                for (int r=0; r<3; r++) {
+                    for (int c=0; c<3; c++) {
+                        gameBoard[r][c].setText("");
+                        gameBoard[r][c].setBackground(Color.ORANGE);
+                    }
+                }
+                oScore = 0;
+                xScore = 0;
+                turn = 1;
+            }
+        });
+
+        gameStatusButtonsPanel.setBackground(new Color(35, 35, 35));
+        gameStatusButtonsPanel.add(restartButton);
+        gameStatusButtonsPanel.add(returnButton);
         
-        formatLabel(turnLabel);
-        formatLabel(oScoreLabel);
-        formatLabel(xScoreLabel);
+        gameStatusLabelPanel.setLayout(new BorderLayout());
+        gameStatusLabelPanel.setOpaque(false);
+
+        gameStatusLabelTurnPanel.add(turnLabel);
+        gameStatusLabelTurnPanel.setOpaque(false);
+
+        gameStatusLabelPanel.add(oScoreLabel, BorderLayout.EAST);
+        gameStatusLabelPanel.add(gameStatusLabelTurnPanel, BorderLayout.CENTER);
+        gameStatusLabelPanel.add(xScoreLabel, BorderLayout.WEST);
+
+        gameStatusPanel.setLayout(new BorderLayout());
+        gameStatusPanel.setBackground(new Color(25, 25, 25));
+        gameStatusPanel.add(gameStatusLabelPanel, BorderLayout.NORTH);
+        gameStatusPanel.add(gameStatusButtonsPanel, BorderLayout.SOUTH);
+        
+        turnLabel.setOpaque(false);
+        turnLabel.setText(currentPlayer + " to play!");
+        turnLabel.setFont(new Font("Arial Unicode MS", Font.BOLD, 50));
+        turnLabel.setForeground(Color.ORANGE);
+
+        oScoreLabel.setFont(new Font("Arial Unicode MS", Font.BOLD, 28));
+        oScoreLabel.setForeground(Color.LIGHT_GRAY);
+        xScoreLabel.setFont(new Font("Arial Unicode MS", Font.BOLD, 28));
+        xScoreLabel.setForeground(Color.LIGHT_GRAY);
+
+        gameFramePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // (top, left, bottom, right)
         gameFrame.add(gameStatusPanel, BorderLayout.NORTH);
         gameFrame.add(gameFramePanel, BorderLayout.CENTER);
+
         gameFrame.setVisible(false);
 
         /* Set up Menu UI */
@@ -160,8 +217,6 @@ public class TicTacToe {
             }
         });
 
-        menuTitlePanel.setBackground(new Color(25, 25, 25));
-
         menuButtonPanel.add(menuAIButton);
         menuButtonPanel.add(menuPlayerButton);
 
@@ -175,9 +230,11 @@ public class TicTacToe {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++){
                 JButton tile = new JButton();
-                tile.setBackground(Color.darkGray);
-                tile.setFont(new Font("Arial", Font.BOLD, 135));
+                tile.setBackground(Color.ORANGE);
+                tile.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4));
+                tile.setFont(new Font("Segoe UI Symbol", Font.BOLD, 150));
                 tile.setFocusable(false);
+                tile.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 gameBoard[i][j] = tile;
     
                 gameFramePanel.add(tile); // Add the tile to the game board panel
@@ -192,17 +249,17 @@ public class TicTacToe {
                             // Check if the tile is empty
                             if (selectedTile.getText().equals("")) {
                                 selectedTile.setText(currentPlayer);
-                                selectedTile.setForeground(currentPlayer.equals("X") ? Color.RED : Color.BLUE);
+                                selectedTile.setForeground(currentPlayer.equals("✕") ? Color.WHITE : (new Color(10, 10, 100)));
                                 
                                 // Check for a winner or a draw
                                 if (hasWinner()) {
                                     isOver = true;
-                                    if (currentPlayer.equals("X")) {
+                                    if (currentPlayer.equals("✕")) {
                                         xScore++;
-                                        xScoreLabel.setText("X: " + String.valueOf(xScore));
-                                    } else if (currentPlayer.equals("O")) {
+                                        xScoreLabel.setText("✕: " + String.valueOf(xScore));
+                                    } else if (currentPlayer.equals("⭕")) {
                                         oScore++;
-                                        oScoreLabel.setText("O: " + String.valueOf(oScore));
+                                        oScoreLabel.setText("✕: " + String.valueOf(oScore));
                                     }
                                 } else if (turn == 9) {
                                     isOver = true;
@@ -210,7 +267,7 @@ public class TicTacToe {
                                 } else {
                                     turn++;
                                     // Alternates between X and O
-                                    currentPlayer = currentPlayer.equals("X") ? "O" : "X";
+                                    currentPlayer = currentPlayer.equals("✕") ? "⭕" : "✕";
                                     turnLabel.setText(currentPlayer + " to play!");
                                 }
                             }
@@ -267,19 +324,14 @@ public class TicTacToe {
         turnLabel.setText(firstButton.getText() + " won!");
     }
 
-    private void formatLabel(JLabel label) {
-        label.setOpaque(true); // Habilita cor de fundo
-        label.setBackground(Color.GRAY); 
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("DialogInput", Font.BOLD, 40));
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setVerticalAlignment(SwingConstants.CENTER);
+    private void miniMax() {
+        // Working on it!
     }
 
     private void handleDraw() {
         for (int i=0; i<3; i++) {
             for (int j=0; j<3; j++) {
-                gameBoard[i][j].setBackground(Color.BLACK);
+                gameBoard[i][j].setBackground(Color.DARK_GRAY);
                 gameBoard[i][j].setForeground(Color.GRAY);
                 turnLabel.setText("It's a draw!");
             }
