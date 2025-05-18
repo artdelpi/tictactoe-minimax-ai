@@ -126,7 +126,9 @@ public class TicTacToe {
                     }
                 }
                 oScore = 0;
+                oScoreLabel.setText("⭕: " + String.valueOf(oScore));
                 xScore = 0;
+                xScoreLabel.setText("✕: " + String.valueOf(oScore));
                 turn = 1;
             }
         });
@@ -259,7 +261,7 @@ public class TicTacToe {
                                         xScoreLabel.setText("✕: " + String.valueOf(xScore));
                                     } else if (currentPlayer.equals("⭕")) {
                                         oScore++;
-                                        oScoreLabel.setText("✕: " + String.valueOf(oScore));
+                                        oScoreLabel.setText("⭕: " + String.valueOf(oScore));
                                     }
                                 } else if (turn == 9) {
                                     isOver = true;

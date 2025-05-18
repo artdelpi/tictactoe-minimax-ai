@@ -6,7 +6,7 @@ This project is a Tic-Tac-Toe game developed in Java, featuring an AI opponent t
 2. **Player vs. Computer (AI)** - The player competes against a computer-controlled opponent using the Minimax algorithm to simulate strategic gameplay.
 
 ## Demo
-![Tic-Tac-Toe Demo](src\resources\demo.gif)
+![Tic-Tac-Toe Demo](src/resources/demo.gif)
 
 ## Features
 - Graphical interface using Java Swing.
