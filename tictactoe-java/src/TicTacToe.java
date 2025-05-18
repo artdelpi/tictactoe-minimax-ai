@@ -3,52 +3,84 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class TicTacToe {
-    JFrame frame = new JFrame("Tic-Tac-Toe");
-    JPanel panel = new JPanel();
-    JPanel gameStatusPanel = new JPanel();
-    JButton restartButton = new JButton(">> RESTART <<");
+    // Declaration of GUI components
+    private JFrame menuFrame;
+    private JFrame gameFrame;
+    private JPanel menuFramePanel;
+    private JPanel gameFramePanel;
+    private JPanel gameStatusPanel;
+    private JButton restartButton;
+    private JButton[][] gameBoard = new JButton[3][3];
+    private JLabel turnLabel;
+    private JLabel xScoreLabel;
+    private JLabel oScoreLabel;
 
-    String currentPlayer = "X";
-    JLabel turnLabel = new JLabel(currentPlayer + " to play!");
+    // Initialization of game variables
+    private String currentPlayer;
+    private String gameMode;
+    private String[] gameModes;
+    private boolean isOver;
+    private int xScore;
+    private int oScore;
+    private int turn;
 
-    int xScore = 0;
-    JLabel xScoreLabel = new JLabel("X: " + String.valueOf(xScore));
-
-    int oScore = 0;
-    JLabel oScoreLabel = new JLabel("O: " + String.valueOf(oScore));
-
-    int turn = 1;
-    boolean isOver = false;
-
-    // Matriz 3x3 que representa as casas do jogo (resolução lógica)
-    JButton[][] board = new JButton[3][3];
-
-    // Configura a interface gráfica e inicializa o jogo
+    // Constructor: Initializes the game
     TicTacToe() {
-        frame.setSize(800, 800);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(null); // Centraliza a janela
+        initializeGameVariables();
+        initializeUserInterface();
+        setUpTiles(); // Core of the game by implementing the tile buttons
+        setUpUserInterface();
+    }
+
+    private void initializeUserInterface() {
+        // Initialize frames
+        menuFrame = new JFrame("Tic-Tac-Toe: Menu");
+        gameFrame = new JFrame("Tic-Tac-Toe");
+
+        // Initialize panels to hold GUI components
+        menuFramePanel = new JPanel();
+        gameFramePanel = new JPanel();
+        gameStatusPanel = new JPanel();
+
+        // Create GUI components
+        restartButton = new JButton(">> RESTART <<");
+        turnLabel = new JLabel(currentPlayer + " to play!");
+        xScoreLabel = new JLabel("X: 0");
+        oScoreLabel = new JLabel("O: 0");
+    }
+
+    private void initializeGameVariables() {
+        currentPlayer = "X";
+        xScore = 0;
+        oScore = 0;
+        turn = 1;
+        isOver = false;
+        gameModes = new String[2];
+        gameModes[0] = "computerVsPlayer";
+        gameModes[1] = "playerVsPlayer";
+    }
+
+    private void setUpUserInterface() {
+        gameFrame.setSize(800, 800);
+        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gameFrame.setLayout(new BorderLayout());
+        gameFrame.setResizable(false);
+        gameFrame.setLocationRelativeTo(null); // Center the window
+        gameFramePanel.setLayout(new GridLayout(3, 3));
         
-        // Painel com layout em grade para organizar os botões (3x3)
-        panel.setLayout(new GridLayout(3, 3));
-
-        formatLabel(turnLabel);
-        formatLabel(oScoreLabel);
-        formatLabel(xScoreLabel);
-
+        // Configure the restart button
         restartButton.setBackground(Color.black);
         restartButton.setForeground(Color.RED);
         restartButton.setFocusable(false);
         restartButton.setFont(new Font("ARIAL", Font.BOLD, 25));
 
+        // Restart game when the button is clicked
         restartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 for (int r=0; r<3; r++) {
                     for (int c=0; c<3; c++) {
-                        board[r][c].setText("");
-                        board[r][c].setBackground(Color.DARK_GRAY);
+                        gameBoard[r][c].setText("");
+                        gameBoard[r][c].setBackground(Color.DARK_GRAY);
                     }
                 }
                 turnLabel.setText(currentPlayer + " to play!");
@@ -63,36 +95,40 @@ public class TicTacToe {
         gameStatusPanel.add(restartButton, BorderLayout.SOUTH);
         gameStatusPanel.add(oScoreLabel, BorderLayout.WEST);
         gameStatusPanel.add(xScoreLabel, BorderLayout.EAST);
+        
+        formatLabel(turnLabel);
+        formatLabel(oScoreLabel);
+        formatLabel(xScoreLabel);
+        gameFrame.add(gameStatusPanel, BorderLayout.NORTH);
+        gameFrame.add(gameFramePanel, BorderLayout.CENTER);
+        gameFrame.setVisible(true);
+    }
 
-        // Criação dos botões pra cada slot do tabuleiro
+    private void setUpTiles() {
+        // Create and configure each tile (button) on the game board
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++){
                 JButton tile = new JButton();
                 tile.setBackground(Color.darkGray);
                 tile.setFont(new Font("Arial", Font.BOLD, 135));
                 tile.setFocusable(false);
-                board[i][j] = tile; // Atribui o botão à posição correspondente na matriz
-
-                panel.add(tile); // Insere botão no grid do painel
-
-                // Adiciona o evento de clique para cada botão (slot)
+                gameBoard[i][j] = tile;
+    
+                gameFramePanel.add(tile); // Add the tile to the game board panel
+    
+                // Add click event for each tile
                 tile.addActionListener(new ActionListener() { 
                     public void actionPerformed(ActionEvent e) {
                         JButton selectedTile = (JButton) e.getSource(); // Toma componente GUI acionado
-
-                        // Só realiza o evento se o jogo não tiver acabado
+    
+                        // Only proceed if the game is not over
                         if (!isOver) {
-                            // Preenche o slot se estiver vazio
+                            // Check if the tile is empty
                             if (selectedTile.getText().equals("")) {
-
                                 selectedTile.setText(currentPlayer);
-                                if (currentPlayer.equals("X")) {
-                                    selectedTile.setForeground(Color.RED);
-                                } else if (currentPlayer.equals("O")) {
-                                    selectedTile.setForeground(Color.BLUE);
-                                }
+                                selectedTile.setForeground(currentPlayer.equals("X") ? Color.RED : Color.BLUE);
                                 
-                                // Condição de parada
+                                // Check for a winner or a draw
                                 if (hasWinner()) {
                                     isOver = true;
                                     if (currentPlayer.equals("X")) {
@@ -107,72 +143,65 @@ public class TicTacToe {
                                     handleDraw();
                                 } else {
                                     turn++;
-                                    // Alterna entre os jogadores X e O
-                                    currentPlayer = currentPlayer == "X" ? "O" : "X";
+                                    // Alternates between X and O
+                                    currentPlayer = currentPlayer.equals("X") ? "O" : "X";
                                     turnLabel.setText(currentPlayer + " to play!");
                                 }
-                                
                             }
-
                         }
                     }
                 });
-
             }
         }
-
-        frame.add(gameStatusPanel, BorderLayout.NORTH);
-        frame.add(panel, BorderLayout.CENTER);
-        frame.setVisible(true);
     }
 
-    boolean hasWinner() {
+    private boolean hasWinner() {
             // Vertical
             for (int c=0; c < 3; c++){
-                if(board[0][c].getText() == board[1][c].getText() &&
-                   board[1][c].getText() == board[2][c].getText() &&
-                   board[0][c].getText() != "") {
-                    setWinner(board[0][c], board[1][c], board[2][c]);
+                if(gameBoard[0][c].getText() == gameBoard[1][c].getText() &&
+                   gameBoard[1][c].getText() == gameBoard[2][c].getText() &&
+                   gameBoard[0][c].getText() != "") {
+                    setWinner(gameBoard[0][c], gameBoard[1][c], gameBoard[2][c]);
                     return true;
                 }
             }
 
             // Horizontal
             for (int r=0; r < 3; r++){
-                if(board[r][0].getText() == board[r][1].getText() &&
-                   board[r][1].getText() == board[r][2].getText() &&
-                   board[r][0].getText() != "") {
-                    setWinner(board[r][0], board[r][1], board[r][2]);
+                if(gameBoard[r][0].getText() == gameBoard[r][1].getText() &&
+                   gameBoard[r][1].getText() == gameBoard[r][2].getText() &&
+                   gameBoard[r][0].getText() != "") {
+                    setWinner(gameBoard[r][0], gameBoard[r][1], gameBoard[r][2]);
                     return true;
                 }
             }
 
             // Diagonal (↘)
-            if (board[0][0].getText() == board[1][1].getText() &&
-                board[1][1].getText() == board[2][2].getText() &&
-                board[0][0].getText() != "") {
-                    setWinner(board[0][0], board[1][1], board[2][2]);
+            if (gameBoard[0][0].getText() == gameBoard[1][1].getText() &&
+                gameBoard[1][1].getText() == gameBoard[2][2].getText() &&
+                gameBoard[0][0].getText() != "") {
+                    setWinner(gameBoard[0][0], gameBoard[1][1], gameBoard[2][2]);
                     return true;
                 }
 
             // Diagonal (↗)
-            if (board[0][2].getText() == board[1][1].getText() &&
-                board[1][1].getText() == board[2][0].getText() &&
-                board[0][2].getText() != "") {
-                    setWinner(board[0][2], board[1][1], board[2][0]);
+            if (gameBoard[0][2].getText() == gameBoard[1][1].getText() &&
+                gameBoard[1][1].getText() == gameBoard[2][0].getText() &&
+                gameBoard[0][2].getText() != "") {
+                    setWinner(gameBoard[0][2], gameBoard[1][1], gameBoard[2][0]);
                     return true;
                 }
             return false;
         }
 
-    void setWinner(JButton firstButton, JButton secondButton, JButton thirdButton) {
+    private void setWinner(JButton firstButton, JButton secondButton, JButton thirdButton) {
         firstButton.setBackground(Color.GREEN);
         secondButton.setBackground(Color.GREEN);
         thirdButton.setBackground(Color.GREEN);
         turnLabel.setText(firstButton.getText() + " won!");
     }
 
-    void formatLabel(JLabel label) {
+    private void formatLabel(JLabel label) {
         label.setOpaque(true); // Habilita cor de fundo
         label.setBackground(Color.GRAY); 
         label.setForeground(Color.WHITE);
@@ -181,11 +210,11 @@ public class TicTacToe {
         label.setVerticalAlignment(SwingConstants.CENTER);
     }
 
-    void handleDraw() {
+    private void handleDraw() {
         for (int i=0; i<3; i++) {
             for (int j=0; j<3; j++) {
-                board[i][j].setBackground(Color.BLACK);
-                board[i][j].setForeground(Color.GRAY);
+                gameBoard[i][j].setBackground(Color.BLACK);
+                gameBoard[i][j].setForeground(Color.GRAY);
                 turnLabel.setText("It's a draw!");
             }
         }
