@@ -228,7 +228,6 @@ public class TicTacToe {
     }
 
     private void setUpTiles() {
-        // Create and configure each tile (button) on the game board
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++){
                 JButton tile = new JButton();
@@ -239,22 +238,18 @@ public class TicTacToe {
                 tile.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 gameBoard[i][j] = tile;
     
-                gameFramePanel.add(tile); // Add the tile to the game board panel
+                gameFramePanel.add(tile);
     
-                // Add click event for each tile
                 tile.addActionListener(new ActionListener() { 
                     public void actionPerformed(ActionEvent e) {
-                        JButton selectedTile = (JButton) e.getSource(); // Toma componente GUI acionado
+                        JButton selectedTile = (JButton) e.getSource();
     
-                        // Only proceed if the game is not over
                         if (!isOver) {
-                            // Check if the tile is empty
                             if (selectedTile.getText().equals("")) {
                                 selectedTile.setText(currentPlayer);
                                 selectedTile.setForeground(currentPlayer.equals("✕") ? Color.WHITE : (new Color(10, 10, 100)));
                                 
-                                // Check for a winner or a draw
-                                if (hasWinner()) {
+                                if (hasWinner(false)) {
                                     isOver = true;
                                     if (currentPlayer.equals("✕")) {
                                         xScore++;
@@ -268,9 +263,13 @@ public class TicTacToe {
                                     handleDraw();
                                 } else {
                                     turn++;
-                                    // Alternates between X and O
                                     currentPlayer = currentPlayer.equals("✕") ? "⭕" : "✕";
                                     turnLabel.setText(currentPlayer + " to play!");
+                                    
+                                    // Se for modo jogador vs IA e for a vez da IA
+                                    if (gameMode.equals(gameModes[0]) && currentPlayer.equals("⭕") && !isOver) {
+                                        makeAIMove();
+                                    }
                                 }
                             }
                         }
@@ -280,54 +279,159 @@ public class TicTacToe {
         }
     }
 
-    private boolean hasWinner() {
-            // Vertical
-            for (int c=0; c < 3; c++){
-                if(gameBoard[0][c].getText() == gameBoard[1][c].getText() &&
-                   gameBoard[1][c].getText() == gameBoard[2][c].getText() &&
-                   gameBoard[0][c].getText() != "") {
-                    setWinner(gameBoard[0][c], gameBoard[1][c], gameBoard[2][c]);
-                    return true;
+    private void makeAIMove() {
+        // Usa o Minimax para encontrar a melhor jogada
+        int[] bestMove = findBestMove();
+        int row = bestMove[0];
+        int col = bestMove[1];
+        
+        // Executa a jogada da IA
+        gameBoard[row][col].doClick();
+    }
+
+    private int[] findBestMove() {
+        int bestVal = Integer.MIN_VALUE;
+        int[] bestMove = new int[]{-1, -1};
+        
+        // Percorre todas as células, avalia a função minimax para todas as células vazias
+        // e retorna a célula com o melhor valor
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (gameBoard[i][j].getText().equals("")) {
+                    // Faz a jogada
+                    gameBoard[i][j].setText("⭕");
+                    
+                    // Computa o valor da jogada
+                    int moveVal = minimax(0, false);
+                    
+                    // Desfaz a jogada
+                    gameBoard[i][j].setText("");
+                    
+                    // Se o valor da jogada atual é melhor que o melhor valor, atualiza
+                    if (moveVal > bestVal) {
+                        bestMove[0] = i;
+                        bestMove[1] = j;
+                        bestVal = moveVal;
+                    }
                 }
             }
-
-            // Horizontal
-            for (int r=0; r < 3; r++){
-                if(gameBoard[r][0].getText() == gameBoard[r][1].getText() &&
-                   gameBoard[r][1].getText() == gameBoard[r][2].getText() &&
-                   gameBoard[r][0].getText() != "") {
-                    setWinner(gameBoard[r][0], gameBoard[r][1], gameBoard[r][2]);
-                    return true;
-                }
-            }
-
-            // Diagonal (↘)
-            if (gameBoard[0][0].getText() == gameBoard[1][1].getText() &&
-                gameBoard[1][1].getText() == gameBoard[2][2].getText() &&
-                gameBoard[0][0].getText() != "") {
-                    setWinner(gameBoard[0][0], gameBoard[1][1], gameBoard[2][2]);
-                    return true;
-                }
-
-            // Diagonal (↗)
-            if (gameBoard[0][2].getText() == gameBoard[1][1].getText() &&
-                gameBoard[1][1].getText() == gameBoard[2][0].getText() &&
-                gameBoard[0][2].getText() != "") {
-                    setWinner(gameBoard[0][2], gameBoard[1][1], gameBoard[2][0]);
-                    return true;
-                }
-            return false;
         }
+        
+        return bestMove;
+    }
+
+    private int minimax(int depth, boolean isMaximizing) {
+        // Verifica se o jogo terminou
+        if (hasWinner(true)) {
+            if (isMaximizing) {
+                // IA (maximizador) perdeu
+                return -10 + depth;
+            } else {
+                // IA (maximizador) ganhou
+                return 10 - depth;
+            }
+        } else if (isBoardFull()) {
+            // Empate
+            return 0;
+        }
+        
+        if (isMaximizing) {
+            int best = Integer.MIN_VALUE;
+            
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (gameBoard[i][j].getText().equals("")) {
+                        gameBoard[i][j].setText("⭕");
+                        best = Math.max(best, minimax(depth + 1, false));
+                        gameBoard[i][j].setText("");
+                    }
+                }
+            }
+            return best;
+        } else {
+            int best = Integer.MAX_VALUE;
+            
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (gameBoard[i][j].getText().equals("")) {
+                        gameBoard[i][j].setText("✕");
+                        best = Math.min(best, minimax(depth + 1, true));
+                        gameBoard[i][j].setText("");
+                    }
+                }
+            }
+            return best;
+        }
+    }
+
+    private boolean isBoardFull() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (gameBoard[i][j].getText().equals("")) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean hasWinner(boolean isSimulation) {
+    // Verifica linhas verticais
+    for (int c = 0; c < 3; c++) {
+        if (gameBoard[0][c].getText().equals(gameBoard[1][c].getText()) &&
+            gameBoard[1][c].getText().equals(gameBoard[2][c].getText()) &&
+            !gameBoard[0][c].getText().equals("")) {
+            
+            if (!isSimulation) {
+                setWinner(gameBoard[0][c], gameBoard[1][c], gameBoard[2][c]);
+            }
+            return true;
+        }
+    }
+
+    // Verifica linhas horizontais
+    for (int r = 0; r < 3; r++) {
+        if (gameBoard[r][0].getText().equals(gameBoard[r][1].getText()) &&
+            gameBoard[r][1].getText().equals(gameBoard[r][2].getText()) &&
+            !gameBoard[r][0].getText().equals("")) {
+            
+            if (!isSimulation) {
+                setWinner(gameBoard[r][0], gameBoard[r][1], gameBoard[r][2]);
+            }
+            return true;
+        }
+    }
+
+    // Verifica diagonal ↘
+    if (gameBoard[0][0].getText().equals(gameBoard[1][1].getText()) &&
+        gameBoard[1][1].getText().equals(gameBoard[2][2].getText()) &&
+        !gameBoard[0][0].getText().equals("")) {
+        
+        if (!isSimulation) {
+            setWinner(gameBoard[0][0], gameBoard[1][1], gameBoard[2][2]);
+        }
+        return true;
+    }
+
+    // Verifica diagonal ↗
+    if (gameBoard[0][2].getText().equals(gameBoard[1][1].getText()) &&
+        gameBoard[1][1].getText().equals(gameBoard[2][0].getText()) &&
+        !gameBoard[0][2].getText().equals("")) {
+        
+        if (!isSimulation) {
+            setWinner(gameBoard[0][2], gameBoard[1][1], gameBoard[2][0]);
+        }
+        return true;
+    }
+    
+    return false;
+    }
 
     private void setWinner(JButton firstButton, JButton secondButton, JButton thirdButton) {
         firstButton.setBackground(Color.GREEN);
         secondButton.setBackground(Color.GREEN);
         thirdButton.setBackground(Color.GREEN);
         turnLabel.setText(firstButton.getText() + " won!");
-    }
-
-    private void miniMax() {
-        // Working on it!
     }
 
     private void handleDraw() {
